@@ -8,6 +8,7 @@ import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Clarifai from "clarifai";
 import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
+import local from "./local";
 import './App.css';
 
 const particlesOptions = {
@@ -23,7 +24,7 @@ const particlesOptions = {
 };
 
 const app = new Clarifai.App({
-  apiKey: "d387db03431749d99f2dae0e4c187681"
+  apiKey: local.apiKey
 })
 
 class App extends Component {
@@ -86,7 +87,7 @@ class App extends Component {
       Clarifai.FACE_DETECT_MODEL,
       input)
     .then(response => {
-      fetch("http://192.168.1.169:3000/image", {
+      fetch(`http://${local.ip}:3000/image`, {
         method: "put",
         headers: {"Content-Type": "application/json"},
         body: JSON.stringify({

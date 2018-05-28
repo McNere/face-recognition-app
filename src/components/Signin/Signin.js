@@ -1,4 +1,5 @@
 import React from "react";
+import local from "./local";
 
 class Signin extends React.Component {
 	constructor(props) {
@@ -18,7 +19,7 @@ class Signin extends React.Component {
 	}
 
 	onSubmitSignIn = () => {
-		fetch("http://192.168.1.169:3000/signin", {
+		fetch(`http://${local.ip}:3000/signin`, {
 			method: "post",
 			headers: {"Content-Type": "application/json"},
 			body: JSON.stringify({

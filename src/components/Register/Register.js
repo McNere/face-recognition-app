@@ -1,4 +1,5 @@
 import React from "react";
+import local from "./local";
 
 class Register extends React.Component {
 	constructor(props) {
@@ -24,7 +25,7 @@ class Register extends React.Component {
 
 	onSubmit = () => {
 		console.log(this.state);
-		fetch("http://192.168.1.169:3000/register", {
+		fetch(`http://${local.ip}:3000/register`, {
 			method: "post",
 			headers: {"Content-Type": "application/json"},
 			body: JSON.stringify({
