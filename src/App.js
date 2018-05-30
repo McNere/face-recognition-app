@@ -23,6 +23,21 @@ const particlesOptions = {
   }
 };
 
+const initialState = {
+  input: "",
+  imageUrl: "",
+  box: {},
+  route: "signin",
+  isSignedIn: false,
+  user: {
+    id: "",
+    name: "",
+    email: "",
+    entries: 0,
+    joined: ""
+  }
+}
+
 const app = new Clarifai.App({
   apiKey: local.apiKey
 })
@@ -30,20 +45,7 @@ const app = new Clarifai.App({
 class App extends Component {
   constructor() {
     super();
-    this.state = {
-      input: "",
-      imageUrl: "",
-      box: {},
-      route: "signin",
-      isSignedIn: false,
-      user: {
-        id: "",
-        name: "",
-        email: "",
-        entries: 0,
-        joined: ""
-      }
-    }
+    this.state = initialState;
   }
 
   calculateFaceLocation = (data) => {
@@ -80,6 +82,7 @@ class App extends Component {
     this.setState({input: event.target.value});
   }
 
+  //submits image to Clarifai API and draws an image box on the picture
   onButtonSubmit = () => {
     const { input } = this.state;
     this.setState({imageUrl: input});
@@ -98,15 +101,15 @@ class App extends Component {
         .then(entries => {
           this.setState(Object.assign(this.state.user, {entries: entries}))
         })
-        .catch(err => console.log(err))
+        .catch(err => console.log("Something went wrong"))
       this.displayFaceBox(this.calculateFaceLocation(response))
     })
-    .catch(err => console.log(err));
+    .catch(err => console.log("Something went wrong"));
   }
 
   onRouteChange = (route) => {
     if (route === "signout") {
-      this.setState({isSignedIn: false});
+      this.setState(initialState);
     } else if (route === "home") {
       this.setState({isSignedIn: true});
     }
