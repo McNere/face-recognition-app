@@ -24,7 +24,6 @@ class Register extends React.Component {
 	}
 
 	onSubmit = () => {
-		console.log(this.state);
 		fetch(`http://${local.ip}:3000/register`, {
 			method: "post",
 			headers: {"Content-Type": "application/json"},
@@ -36,7 +35,7 @@ class Register extends React.Component {
 		})
 		.then(response => response.json())
 		.then(user => {
-			if (user) {
+			if (user.id) {
 				this.props.loadUser(user);
 				this.props.onRouteChange("home");
 			}
