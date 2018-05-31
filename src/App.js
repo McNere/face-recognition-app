@@ -7,7 +7,6 @@ import Particles from "react-particles-js";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
-import local from "./local";
 import './App.css';
 
 const particlesOptions = {
@@ -57,7 +56,6 @@ class App extends Component {
   }
 
   loadUser = (data) => {
-    console.log(data);
     this.setState({
       user: {
         name: data.name,
@@ -77,32 +75,36 @@ class App extends Component {
     this.setState({input: event.target.value});
   }
 
-  //submits image to Clarifai API and draws an image box on the picture
   onButtonSubmit = () => {
     const { input } = this.state;
-    this.setState({imageUrl: input});
-    fetch(`http://${local.ip}:3000/imageurl`, {
+    this.setState({imageUrl: input, box: {}});
+    //submits image URL to backend
+    fetch(`https://quiet-spire-33283.herokuapp.com/imageurl`, {
       method: "post",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
         input: input
       })
-    })
+    }) //backend makes API call and sends a response
     .then(response => response.json())
     .then(response => {
-      fetch(`http://${local.ip}:3000/image`, {
-        method: "put",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({
-          id: this.state.user.id
+      //increments user search count if response is valid
+      if (response.outputs[0].data.regions) { 
+        fetch(`https://quiet-spire-33283.herokuapp.com/image`, {
+          method: "put",
+          headers: {"Content-Type": "application/json"},
+          body: JSON.stringify({
+            id: this.state.user.id
+          })
         })
-      })
-        .then(res => res.json())
-        .then(entries => {
-          this.setState(Object.assign(this.state.user, {entries: entries}))
-        })
-        .catch(err => console.log("Something went wrong"))
-      this.displayFaceBox(this.calculateFaceLocation(response))
+          .then(res => res.json())
+          .then(entries => {
+            this.setState(Object.assign(this.state.user, {entries: entries}))
+          })
+          .catch(err => console.log("Something went wrong"));
+        //draws facebox on image
+        this.displayFaceBox(this.calculateFaceLocation(response))
+      }
     })
     .catch(err => console.log("Something went wrong"));
   }
