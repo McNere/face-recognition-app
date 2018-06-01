@@ -24,7 +24,7 @@ const particlesOptions = {
 const initialState = {
   input: "",
   imageUrl: "",
-  box: {},
+  box: [],
   route: "signin",
   isSignedIn: false,
   user: {
@@ -43,16 +43,18 @@ class App extends Component {
   }
 
   calculateFaceLocation = (data) => {
-    const clarifaiFace = data.outputs[0].data.regions[0].region_info.bounding_box;
+    const clarifaiFace = data.outputs[0].data.regions;
     const image = document.querySelector("#inputimage");
     const width = Number(image.width);
     const height = Number(image.height);
-    return {
-      leftCol: clarifaiFace.left_col * width,
-      topRow: clarifaiFace.top_row * height,
-      rightCol: width - (clarifaiFace.right_col * width),
-      bottomRow: height - (clarifaiFace.bottom_row * height)
-    }
+    return clarifaiFace.map(face => {
+      return {
+        leftCol: face.region_info.bounding_box.left_col * width,
+        topRow: face.region_info.bounding_box.top_row * height,
+        rightCol: width - (face.region_info.bounding_box.right_col * width),
+        bottomRow: height - (face.region_info.bounding_box.bottom_row * height)
+      }
+    })
   }
 
   loadUser = (data) => {
@@ -79,7 +81,7 @@ class App extends Component {
     const { input } = this.state;
     this.setState({imageUrl: input, box: {}});
     //submits image URL to backend
-    fetch(`https://quiet-spire-33283.herokuapp.com/imageurl`, {
+    fetch(`http://139.107.226.15:3000/imageurl`, {
       method: "post",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
@@ -90,11 +92,12 @@ class App extends Component {
     .then(response => {
       //increments user search count if response is valid
       if (response.outputs[0].data.regions) { 
-        fetch(`https://quiet-spire-33283.herokuapp.com/image`, {
+        fetch(`http://139.107.226.15:3000/image`, {
           method: "put",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({
-            id: this.state.user.id
+            id: this.state.user.id,
+            faceCount: response.outputs[0].data.regions.length + Number(this.state.user.entries)
           })
         })
           .then(res => res.json())
