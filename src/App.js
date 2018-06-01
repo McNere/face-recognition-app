@@ -9,6 +9,7 @@ import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
 import './App.css';
 
+//configuration of animated background
 const particlesOptions = {
   particles: {
     number: {
@@ -21,6 +22,7 @@ const particlesOptions = {
   }
 };
 
+//defines the initial state of the app
 const initialState = {
   input: "",
   imageUrl: "",
@@ -42,6 +44,7 @@ class App extends Component {
     this.state = initialState;
   }
 
+  //calculates position of faceboxes and returns them as objects in an array
   calculateFaceLocation = (data) => {
     const clarifaiFace = data.outputs[0].data.regions;
     const image = document.querySelector("#inputimage");
@@ -57,6 +60,7 @@ class App extends Component {
     })
   }
 
+  //enters logged on user's data into app state
   loadUser = (data) => {
     this.setState({
       user: {
@@ -69,10 +73,12 @@ class App extends Component {
     });
   }
 
+  //enters calculated faceboxes into state
   displayFaceBox = (box) => {
     this.setState({box: box});
   }
 
+  //onChange event handler for inputs, enters value into state
   onInputChange = (event) => {
     this.setState({input: event.target.value});
   }
@@ -116,6 +122,7 @@ class App extends Component {
     .catch(err => console.log("Something went wrong"));
   }
 
+  //method for changing route
   onRouteChange = (route) => {
     if (route === "signout") {
       this.setState(initialState);
@@ -134,6 +141,7 @@ class App extends Component {
               params={particlesOptions}
         />
         <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn}/>
+      {/*conditional rendering of components based on current route*/}
         { route === "home" 
           ?  <div>
               <Logo />
