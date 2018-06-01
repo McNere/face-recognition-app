@@ -1,6 +1,6 @@
 .bounding-box {
 	position: absolute;
-	box-shadow: 0 0 0 3px #139df2 inset;
+	
 	display: -webkit-box;
 	display: -ms-flexbox;
 	display: flex;
@@ -10,4 +10,7 @@
 	-ms-flex-pack: center;
 	justify-content: center;
 	cursor: pointer;
+	background: url(https://cdn.shopify.com/s/files/1/1061/1924/products/Smiling_Emoji_with_Smiling_Eyes_large.png?v=1480481060);
+	background-size: cover;
+	background-repeat: no-repeat;
 }
