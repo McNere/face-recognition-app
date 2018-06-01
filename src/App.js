@@ -97,14 +97,18 @@ class App extends Component {
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({
             id: this.state.user.id,
+            name: this.state.user.name,
+            url: input,
             faceCount: response.outputs[0].data.regions.length + Number(this.state.user.entries)
           })
         })
           .then(res => res.json())
           .then(entries => {
-            this.setState(Object.assign(this.state.user, {entries: entries}))
+            if (entries) {
+              this.setState(Object.assign(this.state.user, {entries: Number(entries)}))
+            }
           })
-          .catch(err => console.log("Something went wrong"));
+          .catch(err => console.log(err));
         //draws facebox on image
         this.displayFaceBox(this.calculateFaceLocation(response))
       }
