@@ -81,7 +81,7 @@ class App extends Component {
     const { input } = this.state;
     this.setState({imageUrl: input, box: {}});
     //submits image URL to backend
-    fetch(`http://139.107.226.15:3000/imageurl`, {
+    fetch(`https://quiet-spire-33283.herokuapp.com/imageurl`, {
       method: "post",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
@@ -92,7 +92,7 @@ class App extends Component {
     .then(response => {
       //increments user search count if response is valid
       if (response.outputs[0].data.regions) { 
-        fetch(`http://139.107.226.15:3000/image`, {
+        fetch(`https://quiet-spire-33283.herokuapp.com/image`, {
           method: "put",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({
