@@ -11,7 +11,7 @@ class Scoreboard extends React.Component {
 
 	componentDidMount() {
 		//fetches score data from backend
-		fetch("http://139.107.226.15:3000/scores")
+		fetch("https://quiet-spire-33283.herokuapp.com/scores")
 			.then(response => response.json())
 			.then(scores => this.setState({scores: scores}))
 			.catch(err => console.log(err))
