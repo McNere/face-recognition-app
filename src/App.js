@@ -7,6 +7,7 @@ import Particles from "react-particles-js";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
+import Scoreboard from "./components/Scoreboard/Scoreboard";
 import './App.css';
 
 //configuration of animated background
@@ -83,6 +84,12 @@ class App extends Component {
     this.setState({input: event.target.value});
   }
 
+  onKeySubmit = (event) => {
+    if (event.key === "Enter") {
+      this.onButtonSubmit();
+    }
+  }
+
   onButtonSubmit = () => {
     const { input } = this.state;
     this.setState({imageUrl: input, box: {}});
@@ -132,32 +139,41 @@ class App extends Component {
     this.setState({route: route});
   }
 
+  //function returns pagecontent based on current route state
+  pageContent() {
+    const { route, box, imageUrl } = this.state;
+    if (route === "home") {
+      return (
+        <div>
+          <Logo />
+          <Rank name={this.state.user.name} entries={this.state.user.entries} />
+          <ImageLinkForm 
+            onInputChange={this.onInputChange} 
+            onButtonSubmit={this.onButtonSubmit}
+            onKeySubmit={this.onKeySubmit}
+          />
+          <FaceRecognition box={box} imageUrl={imageUrl} />
+        </div>
+      )
+    } else if (route === "signin" || route === "signout") {
+      return <Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
+    } else if (route === "register") {
+      return <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
+    } else if (route === "score") {
+      return <Scoreboard />
+    }
+  }
+
   render() {
-    const { box, imageUrl, route, isSignedIn } = this.state;
     return (
       <div className="App">
         <Particles 
               className="particles"
               params={particlesOptions}
         />
-        <Navigation onRouteChange={this.onRouteChange} isSignedIn={isSignedIn}/>
+        <Navigation onRouteChange={this.onRouteChange} isSignedIn={this.state.isSignedIn}/>
       {/*conditional rendering of components based on current route*/}
-        { route === "home" 
-          ?  <div>
-              <Logo />
-              <Rank name={this.state.user.name} entries={this.state.user.entries} />
-              <ImageLinkForm 
-                onInputChange={this.onInputChange} 
-                onButtonSubmit={this.onButtonSubmit}
-              />
-              <FaceRecognition box={box} imageUrl={imageUrl} />
-            </div>
-          : ( 
-            route === "signin" || route === "signout"
-            ? <Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
-            : <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
-            )
-          }
+        { this.pageContent() }
       </div>
     );
   }

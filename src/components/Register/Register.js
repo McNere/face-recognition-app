@@ -22,6 +22,12 @@ class Register extends React.Component {
 		this.setState({password: event.target.value});
 	}
 
+	onKeySubmit = (event) => {
+		if (event.key === "Enter") {
+			this.onSubmit();
+		}
+	}
+
 	onSubmit = () => {
 		fetch(`http://139.107.226.15:3000/register`, {
 			method: "post",
@@ -57,6 +63,7 @@ class Register extends React.Component {
 					        type="text" 
 					        name="email-address"
 					        id="name" 
+					        onKeyDown={this.onKeySubmit}
 				        />
 				      </div>
 				      <div className="mt3">
@@ -67,6 +74,7 @@ class Register extends React.Component {
 					        type="email" 
 					        name="email-address"
 					        id="email-address" 
+					        onKeyDown={this.onKeySubmit}
 				        />
 				      </div>
 				      <div className="mv3">
@@ -77,9 +85,9 @@ class Register extends React.Component {
 					        type="password" 
 					        name="password"  
 					        id="password" 
+					        onKeyDown={this.onKeySubmit}
 				        />
 				      </div>
-				      <label className="pa0 ma0 lh-copy f6 pointer"><input type="checkbox" /> Remember me</label>
 				    </fieldset>
 				    <div className="">
 				      <input 

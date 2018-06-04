@@ -17,6 +17,12 @@ class Signin extends React.Component {
 		this.setState({signInPassword: event.target.value});
 	}
 
+	onKeySubmit = (event) => {
+		if (event.key === "Enter") {
+			this.onSubmitSignIn();
+		}
+	}
+
 	onSubmitSignIn = () => {
 		fetch(`http://139.107.226.15:3000/signin`, {
 			method: "post",
@@ -52,6 +58,7 @@ class Signin extends React.Component {
 					        type="email" 
 					        name="email-address"  
 					        id="email-address" 
+					        onKeyDown={this.onKeySubmit}
 				        />
 				      </div>
 				      <div className="mv3">
@@ -62,9 +69,9 @@ class Signin extends React.Component {
 					        type="password" 
 					        name="password"  
 					        id="password" 
+					        onKeyDown={this.onKeySubmit}
 				        />
 				      </div>
-				      <label className="pa0 ma0 lh-copy f6 pointer"><input type="checkbox" /> Remember me</label>
 				    </fieldset>
 				    <div className="">
 				      <input 

@@ -1,0 +1,11 @@
+table {
+	width: 400px;
+}
+
+th {
+	font-size: 1.2em;
+}
+
+.name {
+	text-align: left;
+}
