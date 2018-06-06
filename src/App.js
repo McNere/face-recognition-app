@@ -5,7 +5,7 @@ import Logo from "./components/Logo/Logo";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import Rank from "./components/Rank/Rank";
 import Particles from "react-particles-js";
-import { setInputField } from "./actions";
+import { setInputField, setBox } from "./actions";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
@@ -14,15 +14,15 @@ import './App.css';
 
 const mapStateToProps = (state) => {
   return {
-    inputField: state.inputField,
-    box: state.box
+    inputField: state.changeInput.inputField,
+    box: state.changeBox.box
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     inputFieldChange: (event) => dispatch(setInputField(event.target.value)),
-    
+    calculateFace: (data) => dispatch(setBox(data))
   }
 }
 
@@ -42,7 +42,6 @@ const particlesOptions = {
 //defines the initial state of the app
 const initialState = {
   imageUrl: "",
-  box: [],
   route: "signin",
   isSignedIn: false,
   user: {
@@ -107,7 +106,7 @@ class App extends Component {
 
   onButtonSubmit = () => {
     const { inputField } = this.props;
-    this.setState({imageUrl: inputField, box: {}});
+    this.setState({imageUrl: inputField});
     //submits image URL to backend
     fetch(`${process.env.REACT_APP_URL}/imageurl`, {
       method: "post",
@@ -138,7 +137,7 @@ class App extends Component {
           })
           .catch(err => console.log(err));
         //draws facebox on image
-        this.displayFaceBox(this.calculateFaceLocation(response))
+        this.displayFaceBox(this.props.calculateFace(response))
       }
     })
     .catch(err => console.log("Something went wrong"));
@@ -156,8 +155,8 @@ class App extends Component {
 
   //function returns pagecontent based on current route state
   pageContent() {
-    const { route, box, imageUrl } = this.state;
-    const { inputFieldChange } = this.props;
+    const { route, imageUrl } = this.state;
+    const { inputFieldChange, box } = this.props;
     if (route === "home") {
       return (
         <div>
@@ -172,7 +171,7 @@ class App extends Component {
         </div>
       )
     } else if (route === "signin" || route === "signout") {
-      return <Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
+      return <Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser} prop={this.props}/>
     } else if (route === "register") {
       return <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
     } else if (route === "score") {
@@ -181,7 +180,6 @@ class App extends Component {
   }
 
   render() {
-    console.log(this.props);
     return (
       <div className="App">
         <Particles 
