@@ -1,0 +1,2 @@
+export const CHANGE_INPUT_FIELD = "CHANGE_INPUT_FIELD";
+export const CHANGE_BOX_DATA = "CHANGE_BOX_DATA";

@@ -1,14 +1,30 @@
 import React, { Component } from 'react';
+import { connect } from "react-redux";
 import Navigation from "./components/Navigation/Navigation";
 import Logo from "./components/Logo/Logo";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import Rank from "./components/Rank/Rank";
 import Particles from "react-particles-js";
+import { setInputField } from "./actions";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
 import Scoreboard from "./components/Scoreboard/Scoreboard";
 import './App.css';
+
+const mapStateToProps = (state) => {
+  return {
+    inputField: state.inputField,
+    box: state.box
+  }
+}
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    inputFieldChange: (event) => dispatch(setInputField(event.target.value)),
+    
+  }
+}
 
 //configuration of animated background
 const particlesOptions = {
@@ -25,7 +41,6 @@ const particlesOptions = {
 
 //defines the initial state of the app
 const initialState = {
-  input: "",
   imageUrl: "",
   box: [],
   route: "signin",
@@ -91,14 +106,14 @@ class App extends Component {
   }
 
   onButtonSubmit = () => {
-    const { input } = this.state;
-    this.setState({imageUrl: input, box: {}});
+    const { inputField } = this.props;
+    this.setState({imageUrl: inputField, box: {}});
     //submits image URL to backend
     fetch(`${process.env.REACT_APP_URL}/imageurl`, {
       method: "post",
       headers: {"Content-Type": "application/json"},
       body: JSON.stringify({
-        input: input
+        input: inputField
       })
     }) //backend makes API call and sends a response
     .then(response => response.json())
@@ -111,7 +126,7 @@ class App extends Component {
           body: JSON.stringify({
             id: this.state.user.id,
             name: this.state.user.name,
-            url: input,
+            url: inputField,
             faceCount: response.outputs[0].data.regions.length + Number(this.state.user.entries)
           })
         })
@@ -142,13 +157,14 @@ class App extends Component {
   //function returns pagecontent based on current route state
   pageContent() {
     const { route, box, imageUrl } = this.state;
+    const { inputFieldChange } = this.props;
     if (route === "home") {
       return (
         <div>
           <Logo />
           <Rank name={this.state.user.name} entries={this.state.user.entries} />
           <ImageLinkForm 
-            onInputChange={this.onInputChange} 
+            onInputChange={inputFieldChange} 
             onButtonSubmit={this.onButtonSubmit}
             onKeySubmit={this.onKeySubmit}
           />
@@ -165,6 +181,7 @@ class App extends Component {
   }
 
   render() {
+    console.log(this.props);
     return (
       <div className="App">
         <Particles 
@@ -179,4 +196,4 @@ class App extends Component {
   }
 }
 
-export default App;
+export default connect(mapStateToProps, mapDispatchToProps)(App);
