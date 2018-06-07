@@ -5,7 +5,7 @@ import Logo from "./components/Logo/Logo";
 import ImageLinkForm from "./components/ImageLinkForm/ImageLinkForm";
 import Rank from "./components/Rank/Rank";
 import Particles from "react-particles-js";
-import { setInputField, setBox } from "./actions";
+import { setInputField, setBox, setRoute, logoutUser } from "./actions";
 import FaceRecognition from "./components/FaceRecognition/FaceRecognition";
 import Signin from "./components/Signin/Signin";
 import Register from "./components/Register/Register";
@@ -15,14 +15,18 @@ import './App.css';
 const mapStateToProps = (state) => {
   return {
     inputField: state.changeInput.inputField,
-    box: state.changeBox.box
+    box: state.changeBox.box,
+    user: state.getUser.user,
+    route: state.getRoute.route
   }
 }
 
 const mapDispatchToProps = (dispatch) => {
   return {
     inputFieldChange: (event) => dispatch(setInputField(event.target.value)),
-    calculateFace: (data) => dispatch(setBox(data))
+    calculateFace: (data) => dispatch(setBox(data)),
+    newRoute: (route) => dispatch(setRoute(route)),
+    logout: () => dispatch(logoutUser())
   }
 }
 
@@ -42,20 +46,11 @@ const particlesOptions = {
 //defines the initial state of the app
 const initialState = {
   imageUrl: "",
-  route: "signin",
-  isSignedIn: false,
-  user: {
-    id: "",
-    name: "",
-    email: "",
-    entries: 0,
-    joined: ""
-  }
 }
 
 class App extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = initialState;
   }
 
@@ -123,16 +118,16 @@ class App extends Component {
           method: "put",
           headers: {"Content-Type": "application/json"},
           body: JSON.stringify({
-            id: this.state.user.id,
-            name: this.state.user.name,
+            id: this.props.user.id,
+            name: this.props.user.name,
             url: inputField,
-            faceCount: response.outputs[0].data.regions.length + Number(this.state.user.entries)
+            faceCount: response.outputs[0].data.regions.length + Number(this.props.user.entries)
           })
         })
           .then(res => res.json())
           .then(entries => {
             if (entries) {
-              this.setState(Object.assign(this.state.user, {entries: Number(entries)}))
+              //this.setState(Object.assign(this.props.user, {entries: Number(entries)}))
             }
           })
           .catch(err => console.log(err));
@@ -155,13 +150,13 @@ class App extends Component {
 
   //function returns pagecontent based on current route state
   pageContent() {
-    const { route, imageUrl } = this.state;
-    const { inputFieldChange, box } = this.props;
+    const { imageUrl } = this.state;
+    const { inputFieldChange, box, route, user } = this.props;
     if (route === "home") {
       return (
         <div>
           <Logo />
-          <Rank name={this.state.user.name} entries={this.state.user.entries} />
+          <Rank name={user.name} entries={user.entries} />
           <ImageLinkForm 
             onInputChange={inputFieldChange} 
             onButtonSubmit={this.onButtonSubmit}
@@ -171,7 +166,7 @@ class App extends Component {
         </div>
       )
     } else if (route === "signin" || route === "signout") {
-      return <Signin onRouteChange={this.onRouteChange} loadUser={this.loadUser} prop={this.props}/>
+      return <Signin />
     } else if (route === "register") {
       return <Register onRouteChange={this.onRouteChange} loadUser={this.loadUser} />
     } else if (route === "score") {
@@ -186,7 +181,11 @@ class App extends Component {
               className="particles"
               params={particlesOptions}
         />
-        <Navigation onRouteChange={this.onRouteChange} isSignedIn={this.state.isSignedIn}/>
+        <Navigation 
+          onRouteChange={this.props.newRoute}
+          isSignedIn={this.props.user}
+          logout={this.props.logout}
+        />
       {/*conditional rendering of components based on current route*/}
         { this.pageContent() }
       </div>

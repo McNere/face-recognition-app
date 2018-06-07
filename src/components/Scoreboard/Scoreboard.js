@@ -1,27 +1,35 @@
 import React from "react";
+import { connect } from "react-redux";
+import { getScores } from "../../actions";
 import "./Scoreboard.css";
 
-class Scoreboard extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			scores: []
-		}
+const mapStateToProps = (state) => {
+	return {
+		scores: state.setScores.scores,
+		isPending: state.setScores.isPending,
+		error: state.setScores.error
 	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		loadScores: () => dispatch(getScores())
+	}
+}
+
+class Scoreboard extends React.Component {
 
 	componentDidMount() {
 		//fetches score data from backend
-		fetch(`${process.env.REACT_APP_URL}/scores`)
-			.then(response => response.json())
-			.then(scores => this.setState({scores: scores}))
-			.catch(err => console.log(err))
+		this.props.loadScores();
 	}
 
 	render() {
-		const { scores } = this.state;
+		const { scores, isPending } = this.props;
+
 		return (
 			<div className="center">
-				{!scores[0] 
+				{isPending 
 					? (
 						<h1>Loading</h1>
 					)
@@ -53,4 +61,4 @@ class Scoreboard extends React.Component {
 	}
 }
 
-export default Scoreboard;
+export default connect(mapStateToProps, mapDispatchToProps)(Scoreboard);

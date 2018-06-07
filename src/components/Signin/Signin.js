@@ -1,22 +1,25 @@
 import React from "react";
 import { connect } from "react-redux";
+import { setUser, setEmailField, setPasswordField } from "../../actions";
+
+const mapStateToProps = (state) => {
+	return {
+		userPending: state.getUser.isPending,
+		userError: state.getUser.error,
+		signInEmail: state.getUser.signInEmail,
+		signInPassword: state.getUser.signInPassword
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		loginUser: (user, pass) => dispatch(setUser(user,pass)),
+		emailFieldChange: (event) => dispatch(setEmailField(event.target.value)),
+		passwordFieldChange: (event) => dispatch(setPasswordField(event.target.value))
+	}
+}
 
 class Signin extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state ={
-			signInEmail: "",
-			signInPassword: ""
-		}
-	}
-
-	onEmailChange = (event) => {
-		this.setState({signInEmail: event.target.value});
-	}
-
-	onPasswordChange = (event) => {
-		this.setState({signInPassword: event.target.value});
-	}
 
 	onKeySubmit = (event) => {
 		if (event.key === "Enter") {
@@ -25,27 +28,29 @@ class Signin extends React.Component {
 	}
 
 	onSubmitSignIn = () => {
-		fetch(`${process.env.REACT_APP_URL}/signin`, {
-			method: "post",
-			headers: {"Content-Type": "application/json"},
-			body: JSON.stringify({
-				email: this.state.signInEmail,
-				password: this.state.signInPassword
-			})
-		})
-		.then(response => response.json())
-		.then(user => {
-			if (user.id) {
-				this.props.loadUser(user);
-				this.props.onRouteChange("home");
-			}
-		})
-		.catch(err => console.log(err));
+		const { loginUser, signInEmail, signInPassword } = this.props;
+		loginUser(signInEmail, signInPassword);
+		// fetch(`${process.env.REACT_APP_URL}/signin`, {
+		// 	method: "post",
+		// 	headers: {"Content-Type": "application/json"},
+		// 	body: JSON.stringify({
+		// 		email: this.state.signInEmail,
+		// 		password: this.state.signInPassword
+		// 	})
+		// })
+		// .then(response => response.json())
+		// .then(user => {
+		// 	if (user.id) {
+		// 		this.props.loadUser(user);
+		// 		this.props.onRouteChange("home");
+		// 	}
+		// })
+		// .catch(err => console.log(err));
 	}
 
 	render() {
 		const { onRouteChange } = this.props;
-		console.log(this.props);
+		console.log("signin", this.props);
 		return (
 			<article className="br3 ba dark-gray b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
 				<main className="pa4 black-80">
@@ -55,7 +60,7 @@ class Signin extends React.Component {
 				      <div className="mt3">
 				        <label className="db fw6 lh-copy f6" htmlFor="email-address">Email</label>
 				        <input 
-					        onChange={this.onEmailChange} 
+					        onChange={this.props.emailFieldChange} 
 					        className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" 
 					        type="email" 
 					        name="email-address"  
@@ -66,7 +71,7 @@ class Signin extends React.Component {
 				      <div className="mv3">
 				        <label className="db fw6 lh-copy f6" htmlFor="password">Password</label>
 				        <input 
-					        onChange={this.onPasswordChange} 
+					        onChange={this.props.passwordFieldChange} 
 					        className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" 
 					        type="password" 
 					        name="password"  
@@ -98,4 +103,4 @@ class Signin extends React.Component {
 	}
 }
 
-export default Signin;
+export default connect(mapStateToProps, mapDispatchToProps)(Signin);
