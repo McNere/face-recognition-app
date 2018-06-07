@@ -1,6 +1,6 @@
 import React from "react";
 import { connect } from "react-redux";
-import { setUser, setEmailField, setPasswordField } from "../../actions";
+import { setUser, setEmailField, setPasswordField, logoutUser } from "../../actions";
 
 const mapStateToProps = (state) => {
 	return {
@@ -15,41 +15,26 @@ const mapDispatchToProps = (dispatch) => {
 	return {
 		loginUser: (user, pass) => dispatch(setUser(user,pass)),
 		emailFieldChange: (event) => dispatch(setEmailField(event.target.value)),
-		passwordFieldChange: (event) => dispatch(setPasswordField(event.target.value))
+		passwordFieldChange: (event) => dispatch(setPasswordField(event.target.value)),
+		logout: () => dispatch(logoutUser())
 	}
 }
 
 class Signin extends React.Component {
 
+	componentDidMount() {
+		this.props.logout();
+	}
+
 	onKeySubmit = (event) => {
+		const { loginUser, signInEmail, signInPassword } = this.props;
 		if (event.key === "Enter") {
-			this.onSubmitSignIn();
+			loginUser(signInEmail, signInPassword);
 		}
 	}
 
-	onSubmitSignIn = () => {
-		const { loginUser, signInEmail, signInPassword } = this.props;
-		loginUser(signInEmail, signInPassword);
-		// fetch(`${process.env.REACT_APP_URL}/signin`, {
-		// 	method: "post",
-		// 	headers: {"Content-Type": "application/json"},
-		// 	body: JSON.stringify({
-		// 		email: this.state.signInEmail,
-		// 		password: this.state.signInPassword
-		// 	})
-		// })
-		// .then(response => response.json())
-		// .then(user => {
-		// 	if (user.id) {
-		// 		this.props.loadUser(user);
-		// 		this.props.onRouteChange("home");
-		// 	}
-		// })
-		// .catch(err => console.log(err));
-	}
-
 	render() {
-		const { onRouteChange } = this.props;
+		const { onRouteChange, loginUser, signInEmail, signInPassword } = this.props;
 		console.log("signin", this.props);
 		return (
 			<article className="br3 ba dark-gray b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
@@ -82,7 +67,7 @@ class Signin extends React.Component {
 				    </fieldset>
 				    <div className="">
 				      <input 
-					      onClick={this.onSubmitSignIn} 
+					      onClick={() => loginUser(signInEmail, signInPassword)} 
 					      className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" 
 					      type="submit" 
 					      value="Sign in" 

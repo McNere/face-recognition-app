@@ -1,25 +1,35 @@
 import React from "react";
+import { connect } from "react-redux";
+import { 
+	setNameField, 
+	setEmailField, 
+	setPasswordField, 
+	newUser, 
+	logoutUser 
+} from "../../actions";
+
+const mapStateToProps = (state) => {
+	return {
+		signInEmail: state.getUser.signInEmail,
+		signInPassword: state.getUser.signInPassword,
+		signInName: state.getUser.signInName
+	}
+}
+
+const mapDispatchToProps = (dispatch) => {
+	return {
+		onNameChange: (event) => dispatch(setNameField(event.target.value)),
+		onEmailChange: (event) => dispatch(setEmailField(event.target.value)),
+		onPasswordChange: (event) => dispatch(setPasswordField(event.target.value)),
+		registerUser: (name, email, pass) => dispatch(newUser(name, email, pass)),
+		logout: () => dispatch(logoutUser())
+	}
+}
 
 class Register extends React.Component {
-	constructor(props) {
-		super(props);
-		this.state = {
-			name: "",
-			email: "",
-			password: ""
-		}
-	}
 
-	onNameChange = (event) => {
-		this.setState({name: event.target.value});
-	}
-
-	onEmailChange = (event) => {
-		this.setState({email: event.target.value});
-	}
-
-	onPasswordChange = (event) => {
-		this.setState({password: event.target.value});
+	componentDidMount() {
+		this.props.logout();
 	}
 
 	onKeySubmit = (event) => {
@@ -28,27 +38,8 @@ class Register extends React.Component {
 		}
 	}
 
-	onSubmit = () => {
-		fetch(`${process.env.REACT_APP_URL}/register`, {
-			method: "post",
-			headers: {"Content-Type": "application/json"},
-			body: JSON.stringify({
-				name: this.state.name,
-				email: this.state.email,
-				password: this.state.password
-			})
-		})
-		.then(response => response.json())
-		.then(user => {
-			if (user.id) {
-				this.props.loadUser(user);
-				this.props.onRouteChange("home");
-			}
-		})
-		.catch(err => console.log(err));
-	}
-
 	render() {
+		const { registerUser, signInName, signInEmail, signInPassword } = this.props;
 		return (
 			<article className="br3 ba dark-gray b--black-10 mv4 w-100 w-50-m w-25-l mw6 shadow-5 center">
 				<main className="pa4 black-80">
@@ -58,7 +49,7 @@ class Register extends React.Component {
 				      <div className="mt3">
 				        <label className="db fw6 lh-copy f6" htmlFor="name">Name</label>
 				        <input 
-				        	onChange={this.onNameChange}
+				        	onChange={this.props.onNameChange}
 					        className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" 
 					        type="text" 
 					        name="email-address"
@@ -69,7 +60,7 @@ class Register extends React.Component {
 				      <div className="mt3">
 				        <label className="db fw6 lh-copy f6" htmlFor="email-address">Email</label>
 				        <input 
-				        	onChange={this.onEmailChange}
+				        	onChange={this.props.onEmailChange}
 					        className="pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" 
 					        type="email" 
 					        name="email-address"
@@ -80,7 +71,7 @@ class Register extends React.Component {
 				      <div className="mv3">
 				        <label className="db fw6 lh-copy f6" htmlFor="password">Password</label>
 				        <input 
-				        	onChange={this.onPasswordChange}
+				        	onChange={this.props.onPasswordChange}
 					        className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" 
 					        type="password" 
 					        name="password"  
@@ -91,7 +82,7 @@ class Register extends React.Component {
 				    </fieldset>
 				    <div className="">
 				      <input 
-					      onClick={this.onSubmit} 
+					      onClick={() => registerUser(signInName, signInEmail, signInPassword)} 
 					      className="b ph3 pv2 input-reset ba b--black bg-transparent grow pointer f6 dib" 
 					      type="submit" 
 					      value="Register" 
@@ -104,4 +95,4 @@ class Register extends React.Component {
 	}	
 }
 
-export default Register;
+export default connect(mapStateToProps, mapDispatchToProps)(Register);

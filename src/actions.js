@@ -10,6 +10,7 @@ import {
 	LOGOUT_USER,
 	CHANGE_EMAIL_FIELD,
 	CHANGE_PASSWORD_FIELD,
+	CHANGE_NAME_FIELD,
 	CHANGE_ROUTE
 } from "./constants";
 
@@ -30,6 +31,13 @@ export const setEmailField = (text) => {
 export const setPasswordField = (text) => {
 	return {
 		type: CHANGE_PASSWORD_FIELD,
+		payload: text
+	}
+}
+
+export const setNameField = (text) => {
+	return {
+		type: CHANGE_NAME_FIELD,
 		payload: text
 	}
 }
@@ -76,6 +84,27 @@ export const setUser = (user, pass) => (dispatch) => {
 			if (user.name) {
 				dispatch({ type: LOGIN_USER_SUCCESS, payload: user });
 				dispatch({ type: CHANGE_ROUTE, payload: "home"});
+			}
+		})
+		.catch(error => dispatch({ type: LOGIN_USER_FAILED, payload: error }))
+}
+
+export const newUser = (name, email, pass) => (dispatch) => {
+	dispatch({ type: LOGIN_USER_PENDING });
+	fetch(`${process.env.REACT_APP_URL}/register`, {
+		method: "post",
+		headers: {"Content-Type": "application/json"},
+		body: JSON.stringify({
+			name: name,
+			email: email,
+			password: pass
+		})
+	})
+		.then(response => response.json())
+		.then(newUser => {
+			if (newUser.name) {
+				dispatch({ type: LOGIN_USER_SUCCESS, payload: newUser });
+				dispatch({ type: CHANGE_ROUTE, payload: "home" });
 			}
 		})
 		.catch(error => dispatch({ type: LOGIN_USER_FAILED, payload: error }))

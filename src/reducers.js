@@ -10,6 +10,7 @@ import {
 	LOGOUT_USER,
 	CHANGE_EMAIL_FIELD,
 	CHANGE_PASSWORD_FIELD,
+	CHANGE_NAME_FIELD,
 	CHANGE_ROUTE
 } from "./constants";
 
@@ -79,7 +80,8 @@ const initialStateUser = {
     isPending: false,
     error: "",
     signInEmail: "",
-    signInPassword: ""
+    signInPassword: "",
+    signInName: ""
 }
 
 export const getUser = (state=initialStateUser, action={}) => {
@@ -99,8 +101,11 @@ export const getUser = (state=initialStateUser, action={}) => {
 		case CHANGE_PASSWORD_FIELD:
 			return Object.assign({}, state, {signInPassword: action.payload});
 
+		case CHANGE_NAME_FIELD:
+			return Object.assign({}, state, {signInName: action.payload});
+
 		case LOGOUT_USER:
-			return Object.assign({}, state, {user: action.payload});
+			return Object.assign({}, state, {user: {}, signInEmail: "", signInPassword: "", signInName: ""});
 
 		default:
 			return state;
