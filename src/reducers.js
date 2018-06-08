@@ -11,7 +11,11 @@ import {
 	CHANGE_EMAIL_FIELD,
 	CHANGE_PASSWORD_FIELD,
 	CHANGE_NAME_FIELD,
-	CHANGE_ROUTE
+	CHANGE_ROUTE,
+	FETCH_IMAGE_PENDING,
+	FETCH_IMAGE_SUCCESS,
+	FETCH_IMAGE_FAILED,
+	RESET_IMAGE_DATA
 } from "./constants";
 
 
@@ -32,13 +36,28 @@ export const changeInput = (state=initialStateInput, action={}) => {
 
 //state and reducer for the facebox
 const initialStateBox = {
-	box: []
+	box: [],
+	imageUrl: "",
+	isPending: false,
+	error: ""
 }
 
 export const changeBox = (state=initialStateBox, action={}) => {
 	switch (action.type) {
 		case CHANGE_BOX_DATA:
-			return Object.assign({}, state, {box: action.payload})
+			return Object.assign({}, state, {box: action.payload});
+
+		case FETCH_IMAGE_PENDING:
+			return Object.assign({}, state, {isPending: true, imageUrl: action.payload});
+
+		case FETCH_IMAGE_FAILED:
+			return Object.assign({}, state, {isPending: false, error: action.payload});
+
+		case FETCH_IMAGE_SUCCESS:
+			return Object.assign({}, state, {isPending: false, imageUrl: action.payload});
+
+		case RESET_IMAGE_DATA:
+			return initialStateBox;
 
 		default:
 			return state;
@@ -105,7 +124,7 @@ export const getUser = (state=initialStateUser, action={}) => {
 			return Object.assign({}, state, {signInName: action.payload});
 
 		case LOGOUT_USER:
-			return Object.assign({}, state, {user: {}, signInEmail: "", signInPassword: "", signInName: ""});
+			return initialStateUser;
 
 		default:
 			return state;

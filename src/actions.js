@@ -11,7 +11,11 @@ import {
 	CHANGE_EMAIL_FIELD,
 	CHANGE_PASSWORD_FIELD,
 	CHANGE_NAME_FIELD,
-	CHANGE_ROUTE
+	CHANGE_ROUTE,
+	FETCH_IMAGE_PENDING,
+	FETCH_IMAGE_SUCCESS,
+	FETCH_IMAGE_FAILED,
+	RESET_IMAGE_DATA
 } from "./constants";
 
 export const setInputField = (text) => {
@@ -42,6 +46,7 @@ export const setNameField = (text) => {
 	}
 }
 
+//calculates facebox from received data and returns an object with array as payload
 export const setBox = (data) => {
 	const clarifaiFace = data.outputs[0].data.regions;
     const image = document.querySelector("#inputimage");
@@ -61,6 +66,49 @@ export const setBox = (data) => {
 	}
 }
 
+//sends imageurl upon submit to back end and handles returned data
+export const findFace = (id, name, entries, input) => (dispatch) => {
+	dispatch({ type: FETCH_IMAGE_PENDING, payload: input });
+	fetch(`${process.env.REACT_APP_URL}/imageurl`, {
+		method: "post",
+		headers: {"Content-Type": "application/json"},
+		body: JSON.stringify({
+			input: input
+		})
+	})
+		.then(response => response.json())
+		.then(response => {
+			if (response.outputs[0].data.regions) {
+				dispatch({ type: FETCH_IMAGE_SUCCESS, payload: input })
+				//dispatches object with array payload from setBox
+				dispatch(setBox(response));
+				//submits URL to backend to check score
+				fetch(`${process.env.REACT_APP_URL}/image`, {
+					method: "put",
+					headers: {"Content-Type": "application/json"},
+					body: JSON.stringify({
+						id: id,
+						name: name,
+						faceCount: response.outputs[0].data.regions.length + Number(entries),
+						url: input
+					})
+				})
+					.then(response => response.json())
+					.then(user => {
+						if (user) {
+							//dispatches new user info if user data is returned from backend
+							dispatch({ type: LOGIN_USER_SUCCESS, payload: user });
+						}
+					})
+					.catch(error => console.log("Something went wrong"))
+			} else {
+				dispatch({ type: FETCH_IMAGE_FAILED, payload: "Invalid data returned"})
+			}
+		})
+		.catch(error => dispatch({ type: FETCH_IMAGE_FAILED, payload: error}))
+}
+
+//fetch score data from backend
 export const getScores = () => (dispatch) => {
 	dispatch({ type: GET_SCORES_PENDING });
 	fetch(`${process.env.REACT_APP_URL}/scores`)
@@ -69,6 +117,7 @@ export const getScores = () => (dispatch) => {
 		.catch(error => dispatch({ type: GET_SCORES_FAILED, payload: error}))
 }
 
+//login user and put userdata in state upon success
 export const setUser = (user, pass) => (dispatch) => {
 	dispatch({ type: LOGIN_USER_PENDING });
 	fetch(`${process.env.REACT_APP_URL}/signin`, {
@@ -89,6 +138,7 @@ export const setUser = (user, pass) => (dispatch) => {
 		.catch(error => dispatch({ type: LOGIN_USER_FAILED, payload: error }))
 }
 
+//register new user and log them in upon success
 export const newUser = (name, email, pass) => (dispatch) => {
 	dispatch({ type: LOGIN_USER_PENDING });
 	fetch(`${process.env.REACT_APP_URL}/register`, {
@@ -110,6 +160,7 @@ export const newUser = (name, email, pass) => (dispatch) => {
 		.catch(error => dispatch({ type: LOGIN_USER_FAILED, payload: error }))
 }
 
+//route change
 export const setRoute = (text) => {
 	return {
 		type: CHANGE_ROUTE,
@@ -117,9 +168,8 @@ export const setRoute = (text) => {
 	}
 }
 
-export const logoutUser = () => {
-	return {
-		type: LOGOUT_USER,
-		payload: {}
-	}
+//remove user and image data from state
+export const logoutUser = () => (dispatch) => {
+	dispatch({ type: LOGOUT_USER });
+	dispatch({ type: RESET_IMAGE_DATA });
 }
