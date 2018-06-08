@@ -91,7 +91,7 @@ class App extends Component {
         return <Scoreboard />
 
       default:
-        return <Signin />
+        return <Signin onRouteChange={this.props.newRoute}/>
     }
   }
 
