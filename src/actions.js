@@ -52,9 +52,10 @@ export const setBox = (data) => {
     const image = document.querySelector("#inputimage");
     const width = Number(image.width);
     const height = Number(image.height);
-    
+
 	return {
 		type: CHANGE_BOX_DATA,
+		//calculates position of faceboxes based on image dimensions
 		payload: clarifaiFace.map(face => {
 	      return {
 	        leftCol: face.region_info.bounding_box.left_col * width,
@@ -96,9 +97,10 @@ export const findFace = (id, name, entries, input) => (dispatch) => {
 					.then(response => response.json())
 					.then(user => {
 						if (user) {
-							//dispatches new user info if user data is returned from backend
+							//dispatches updated user data if received from backend
 							dispatch({ type: LOGIN_USER_SUCCESS, payload: user });
 						}
+						//no change if nothing is returned
 					})
 					.catch(error => console.log("Something went wrong"))
 			} else {
@@ -108,7 +110,7 @@ export const findFace = (id, name, entries, input) => (dispatch) => {
 		.catch(error => dispatch({ type: FETCH_IMAGE_FAILED, payload: error}))
 }
 
-//fetch score data from backend
+//fetch and dispatch score data from backend
 export const getScores = () => (dispatch) => {
 	dispatch({ type: GET_SCORES_PENDING });
 	fetch(`${process.env.REACT_APP_URL}/scores`)
@@ -130,10 +132,13 @@ export const setUser = (user, pass) => (dispatch) => {
 	})
 		.then(response => response.json())
 		.then(user => {
+			//backend returns user data upon successful authentication
 			if (user.name) {
+				//applies valid user data to store and changes route to home
 				dispatch({ type: LOGIN_USER_SUCCESS, payload: user });
 				dispatch({ type: CHANGE_ROUTE, payload: "home"});
 			}
+			//no action if invalid userdata is returned
 		})
 		.catch(error => dispatch({ type: LOGIN_USER_FAILED, payload: error }))
 }
@@ -152,7 +157,9 @@ export const newUser = (name, email, pass) => (dispatch) => {
 	})
 		.then(response => response.json())
 		.then(newUser => {
+			//backend returns user data upon successful registration
 			if (newUser.name) {
+				//applies valid userdata to store and changes route to home
 				dispatch({ type: LOGIN_USER_SUCCESS, payload: newUser });
 				dispatch({ type: CHANGE_ROUTE, payload: "home" });
 			}
@@ -160,7 +167,7 @@ export const newUser = (name, email, pass) => (dispatch) => {
 		.catch(error => dispatch({ type: LOGIN_USER_FAILED, payload: error }))
 }
 
-//route change
+//changes route based on input
 export const setRoute = (text) => {
 	return {
 		type: CHANGE_ROUTE,

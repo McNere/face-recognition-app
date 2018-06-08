@@ -34,7 +34,7 @@ export const changeInput = (state=initialStateInput, action={}) => {
 	}
 }
 
-//state and reducer for the facebox
+//state and reducer for the facebox and image data
 const initialStateBox = {
 	box: [],
 	imageUrl: "",
@@ -87,7 +87,7 @@ export const setScores = (state=initialStateScores, action={}) => {
 	}
 }
 
-//state
+//reducer and state for handling user data
 const initialStateUser = {
 	user: {
 		id: "",
@@ -131,6 +131,7 @@ export const getUser = (state=initialStateUser, action={}) => {
 	}
 }
 
+//reducer and state for handling the active route in the app
 const initialStateRoute = {
 	route: "signin"
 }

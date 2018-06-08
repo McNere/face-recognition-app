@@ -28,13 +28,16 @@ const mapDispatchToProps = (dispatch) => {
 
 class Register extends React.Component {
 
+	//ensures that no userdata remains when switching login/register routes
 	componentDidMount() {
 		this.props.logout();
 	}
 
+	//submits user registration when pressing enter
 	onKeySubmit = (event) => {
-		if (event.key === "Enter") {
-			this.onSubmit();
+		const { registerUser, signInName, signInEmail, signInPassword } = this.props;
+		if (event.keyCode === 13) {
+			registerUser(signInName, signInEmail, signInPassword);
 		}
 	}
 
@@ -74,7 +77,7 @@ class Register extends React.Component {
 				        	onChange={this.props.onPasswordChange}
 					        className="b pa2 input-reset ba bg-transparent hover-bg-black hover-white w-100" 
 					        type="password" 
-					        name="password"  
+					        name="password" 
 					        id="password" 
 					        onKeyDown={this.onKeySubmit}
 				        />
@@ -91,8 +94,8 @@ class Register extends React.Component {
 				  </div>
 				</main>
 			</article>
-		);	
-	}	
+		);
+	}
 }
 
 export default connect(mapStateToProps, mapDispatchToProps)(Register);

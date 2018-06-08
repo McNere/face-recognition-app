@@ -22,10 +22,12 @@ const mapDispatchToProps = (dispatch) => {
 
 class Signin extends React.Component {
 
+	//ensures that no userdata remains when switching login/register routes
 	componentDidMount() {
 		this.props.logout();
 	}
 
+	//submits user login when pressing enter
 	onKeySubmit = (event) => {
 		const { loginUser, signInEmail, signInPassword } = this.props;
 		if (event.key === "Enter") {

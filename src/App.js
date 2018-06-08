@@ -47,6 +47,7 @@ const particlesOptions = {
 
 class App extends Component {
 
+  //submits image data when pressing enter
   onKeySubmit = (event) => {
     const { onButtonSubmit, user, inputField } = this.props;
     if (event.keyCode === 13) {
@@ -54,30 +55,43 @@ class App extends Component {
     }
   }
 
-  //function returns pagecontent based on current route state
+  //function returns page content based on current route
   pageContent() {
-    const { inputFieldChange, box, route, user, inputField, imageUrl } = this.props;
-    if (route === "home") {
-      return (
-        <div>
-          <Logo />
-          <Rank name={user.name} entries={user.entries} />
-          <ImageLinkForm 
-            onInputChange={inputFieldChange} 
-            onButtonSubmit={this.props.onButtonSubmit}
-            onKeySubmit={this.onKeySubmit}
-            user={user}
-            input={inputField}
-          />
-          <FaceRecognition box={box} imageUrl={imageUrl} />
-        </div>
-      )
-    } else if (route === "signin" || route === "signout") {
-      return <Signin />
-    } else if (route === "register") {
-      return <Register />
-    } else if (route === "score") {
-      return <Scoreboard />
+    const { 
+      inputFieldChange,
+      box,
+      route,
+      user,
+      inputField,
+      imageUrl
+    } = this.props;
+
+    //main page displayed after user has logged in
+    switch (route) {
+      case "home":
+        return (
+          <div>
+            <Logo />
+            <Rank name={user.name} entries={user.entries} />
+            <ImageLinkForm 
+              onInputChange={inputFieldChange} 
+              onButtonSubmit={this.props.onButtonSubmit}
+              onKeySubmit={this.onKeySubmit}
+              user={user}
+              input={inputField}
+            />
+            <FaceRecognition box={box} imageUrl={imageUrl} />
+          </div>
+        )
+
+      case "register":
+        return <Register />
+
+      case "score":
+        return <Scoreboard />
+
+      default:
+        return <Signin />
     }
   }
 
@@ -91,7 +105,6 @@ class App extends Component {
         <Navigation 
           onRouteChange={this.props.newRoute}
           isSignedIn={this.props.user}
-          logout={this.props.logout}
         />
       {/*conditional rendering of components based on current route*/}
         { this.pageContent() }

@@ -17,7 +17,7 @@ const FaceRecognition = ({ box, imageUrl }) => {
 							left={face.leftCol}
 						/>
 					})
-				) : (null)				
+				) : (null)
 				}
 			</div>
 		</div>
