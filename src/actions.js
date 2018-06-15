@@ -46,6 +46,34 @@ export const setNameField = (text) => {
 	}
 }
 
+//function for submitting and fetching data from API
+function callApi(url, method, body) {
+	const route = `${process.env.REACT_APP_URL}/${url}`
+	if (!method) {
+		return fetch(route)
+			.then(response => {
+				if (response.status !== 200) {
+					return Promise.reject();
+				}
+				return response.json();
+			})
+			
+	} else {
+		return fetch(route, {
+			method: method,
+			headers: {"Content-Type": "application/json"},
+			body: JSON.stringify(body)
+		})
+			.then(response => {
+				if (response.status !== 200) {
+					return Promise.reject();
+				}
+				return response.json();
+			})
+	}
+	
+}
+
 //calculates facebox from received data and returns an object with array as payload
 export const setBox = (data) => {
 	const clarifaiFace = data.outputs[0].data.regions;
@@ -70,31 +98,21 @@ export const setBox = (data) => {
 //sends imageurl upon submit to back end and handles returned data
 export const findFace = (id, name, entries, input) => (dispatch) => {
 	dispatch({ type: FETCH_IMAGE_PENDING, payload: input });
-	fetch(`${process.env.REACT_APP_URL}/imageurl`, {
-		method: "post",
-		headers: {"Content-Type": "application/json"},
-		body: JSON.stringify({
+	callApi("imageurl", "post", {
 			input: input
 		})
-	})
-		.then(response => response.json())
 		.then(response => {
 			if (response.outputs[0].data.regions) {
 				dispatch({ type: FETCH_IMAGE_SUCCESS, payload: input })
 				//dispatches object with array payload from setBox
 				dispatch(setBox(response));
 				//submits URL to backend to check score
-				fetch(`${process.env.REACT_APP_URL}/image`, {
-					method: "put",
-					headers: {"Content-Type": "application/json"},
-					body: JSON.stringify({
+				callApi("image", "put", {
 						id: id,
 						name: name,
 						faceCount: response.outputs[0].data.regions.length + Number(entries),
 						url: input
-					})
 				})
-					.then(response => response.json())
 					.then(user => {
 						if (user) {
 							//dispatches updated user data if received from backend
@@ -107,30 +125,24 @@ export const findFace = (id, name, entries, input) => (dispatch) => {
 				dispatch({ type: FETCH_IMAGE_FAILED, payload: "Invalid data returned"})
 			}
 		})
-		.catch(error => dispatch({ type: FETCH_IMAGE_FAILED, payload: error}))
+		.catch(error => dispatch({ type: FETCH_IMAGE_FAILED, payload: "Invalid data returned"}))
 }
 
 //fetch and dispatch score data from backend
 export const getScores = () => (dispatch) => {
 	dispatch({ type: GET_SCORES_PENDING });
-	fetch(`${process.env.REACT_APP_URL}/scores`)
-		.then(response => response.json())
+	callApi("score")
 		.then(scores => dispatch({ type: GET_SCORES_SUCCESS, payload: scores}))
-		.catch(error => dispatch({ type: GET_SCORES_FAILED, payload: error}))
+		.catch(error => dispatch({ type: GET_SCORES_FAILED, payload: "Error loading scores"}))
 }
 
 //login user and put userdata in state upon success
 export const setUser = (user, pass) => (dispatch) => {
 	dispatch({ type: LOGIN_USER_PENDING });
-	fetch(`${process.env.REACT_APP_URL}/signin`, {
-		method: "post",
-		headers: {"Content-Type": "application/json"},
-		body: JSON.stringify({
-			email: user,
-			password: pass
-		})
+	callApi("signin", "post", {
+		email: user,
+		password: pass
 	})
-		.then(response => response.json())
 		.then(user => {
 			//backend returns user data upon successful authentication
 			if (user.name) {
@@ -140,22 +152,17 @@ export const setUser = (user, pass) => (dispatch) => {
 			}
 			//no action if invalid userdata is returned
 		})
-		.catch(error => dispatch({ type: LOGIN_USER_FAILED, payload: error }))
+		.catch(error => dispatch({ type: LOGIN_USER_FAILED, payload: "Login failed" }))
 }
 
 //register new user and log them in upon success
 export const newUser = (name, email, pass) => (dispatch) => {
 	dispatch({ type: LOGIN_USER_PENDING });
-	fetch(`${process.env.REACT_APP_URL}/register`, {
-		method: "post",
-		headers: {"Content-Type": "application/json"},
-		body: JSON.stringify({
-			name: name,
-			email: email,
-			password: pass
-		})
+	callApi("register", "post", {
+		name: name,
+		email: email,
+		password: pass
 	})
-		.then(response => response.json())
 		.then(newUser => {
 			//backend returns user data upon successful registration
 			if (newUser.name) {
@@ -164,7 +171,7 @@ export const newUser = (name, email, pass) => (dispatch) => {
 				dispatch({ type: CHANGE_ROUTE, payload: "home" });
 			}
 		})
-		.catch(error => dispatch({ type: LOGIN_USER_FAILED, payload: error }))
+		.catch(error => dispatch({ type: LOGIN_USER_FAILED, payload: "Error while registering new user" }))
 }
 
 //changes route based on input
