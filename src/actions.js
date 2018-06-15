@@ -131,7 +131,7 @@ export const findFace = (id, name, entries, input) => (dispatch) => {
 //fetch and dispatch score data from backend
 export const getScores = () => (dispatch) => {
 	dispatch({ type: GET_SCORES_PENDING });
-	callApi("score")
+	callApi("scores")
 		.then(scores => dispatch({ type: GET_SCORES_SUCCESS, payload: scores}))
 		.catch(error => dispatch({ type: GET_SCORES_FAILED, payload: "Error loading scores"}))
 }
